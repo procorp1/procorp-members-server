@@ -2,6 +2,7 @@ const {
   createUserService,
   loginUserService,
 } = require("../services/auth.services");
+const { generateToken } = require("../utils/token");
 
 /**
  *
@@ -54,19 +55,21 @@ module.exports.loginUser = async (req, res, next) => {
 
     const isPasswordValid = await user.comparePassword(password, user.password);
 
-    console.log(isPasswordValid);
     if (!isPasswordValid) {
       return res.status(401).json({
         message: "Password incorrect",
       });
     }
-
+    const token = generateToken(user);
     const { password: pwd, ...others } = user.toObject();
 
     res.status(201).json({
       status: true,
       message: "login success",
-      user: others,
+      data:{
+        user:others,
+        token:token
+      },
     });
   } catch (error) {
     res.status(400).json({
